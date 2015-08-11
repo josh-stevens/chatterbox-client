@@ -6,9 +6,13 @@ var friends = [];
 
 var app = {
 
-    addFriend: function() {
-        console.log("Friend added!");
-      friends.push()
+    addFriend: function(friendName) {
+      if (friends.indexOf(friendName) === -1) {
+        friends.push(friendName);
+      }
+      else {
+        friends.splice(friends.indexOf(friendName), 1);
+      }
     },
 
     addMessage: function(message) {
@@ -16,8 +20,14 @@ var app = {
         // only append messages with .roomname equal to the current room
         var currentRoom = $('#roomSelect').val();
         if (message.roomname === currentRoom){
-          $('#chats').append('<p class="chat"><span class="username" >' + message.username + '</span>: ' +
-            message.text + '</p>');
+          if (friends.indexOf(message.username) > -1) {
+            $('#chats').append('<p class="chat"><span style="color: red;" class="username" >' + message.username + '</span>: <strong>' +
+            message.text + '</strong></p>');
+          }
+          else {
+            $('#chats').append('<p class="chat"><span class="username" >' + message.username + '</span>: ' +
+              message.text + '</p>');
+          }
         }
       }
 
@@ -50,8 +60,6 @@ var app = {
                   }
 
               }
-
-              console.log(roomNames);
               for (var key in roomNames) {
                 if (roomNames[key] === 0) {
                   $('#roomSelect').append('<option value="' + key + '">' + key + '</option>');
@@ -104,7 +112,7 @@ $( document ).ready(function(){
     app.addRoom();
   })
   $('body').on('click','.username', function(event) {
-    app.addFriend();
+    app.addFriend($(event.target).text());
   })
 });
 
