@@ -1,23 +1,35 @@
 // YOUR CODE HERE:
 
+var roomNames = {};
+
+var friends = [];
+
 var app = {
 
     addFriend: function() {
         console.log("Friend added!");
-
+      friends.push()
     },
 
     addMessage: function(message) {
-      if (message.text.indexOf("<script>") === -1) {
-        $('#chats').append('<p class="chat"><span class="username" onclick="app.addFriend()">' + message.username + '</span>: ' +
-          message.text + '</p>');
+      if (message.text && message.text.indexOf("<script>") === -1) {
+        // only append messages with .roomname equal to the current room
+        var currentRoom = $('#roomSelect').val();
+        if (message.roomname === currentRoom){
+          $('#chats').append('<p class="chat"><span class="username" >' + message.username + '</span>: ' +
+            message.text + '</p>');
+        }
       }
 
 
     },
 
-    addRoom: function(roomname) {
-        $('#roomSelect').append('<option value="' + roomname + '">' + roomname + '</option>');
+    addRoom: function() {
+        var roomname = $('#newRoom').val();
+        $('#newRoom').val('');
+        if (roomNames[roomname] === undefined){
+          $('#roomSelect').append('<option value="' + roomname + '">' + roomname + '</option>');
+        }
     },
 
     clearMessages: function() {
@@ -30,11 +42,24 @@ var app = {
             type: 'GET',
             success: function(data) {
               app.clearMessages();
-                for (var i = 0; i < data.results.length; i++) {
-                    app.addMessage(data.results[i]);
+              for (var i = 0; i < data.results.length; i++) {
+                  app.addMessage(data.results[i]);
+                  var msgRoom = data.results[i].roomname;
+                  if (roomNames[msgRoom] === undefined) {
+                    roomNames[msgRoom] = 0;
+                  }
+
+              }
+
+              console.log(roomNames);
+              for (var key in roomNames) {
+                if (roomNames[key] === 0) {
+                  $('#roomSelect').append('<option value="' + key + '">' + key + '</option>');
+                  roomNames[key] = 1;
                 }
+              }
             }
-        })
+        });
     },
 
     handleSubmit: function() {
@@ -73,6 +98,13 @@ $( document ).ready(function(){
   $('#send').on('submit', function(event) {
     event.preventDefault();
     app.handleSubmit();
+  })
+  $('#addRoom').on('submit',function(event) {
+    event.preventDefault();
+    app.addRoom();
+  })
+  $('body').on('click','.username', function(event) {
+    app.addFriend();
   })
 });
 
